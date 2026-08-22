@@ -1,0 +1,53 @@
+{
+  "sigma": [
+    [
+      1.0,
+      0.3
+    ],
+    [
+      0.3,
+      1.0
+    ]
+  ],
+  "c": [
+    [
+      0.5,
+      0.1
+    ],
+    [
+      0.1,
+      0.5
+    ]
+  ],
+  "training": {
+    "epochs": 200,
+    "agent_lr": 0.003,
+    "adversary_lr": 0.01,
+    "samples": 2048,
+    "evaluation_samples": 4096,
+    "simulation_dt": 0.02,
+    "simulation_steps": 150,
+    "paths": 64,
+    "burn_in_fraction": 0.25,
+    "agent_steps": 3,
+    "adversary_steps": 2,
+    "hidden": 64,
+    "log_every": 25,
+    "seed": 42
+  },
+  "analytical_growth_rate": 0.1291208791208791,
+  "final_learned_growth_rate": 0.12944498658180237,
+  "learned_alpha": [
+    -1.0464286804199219
+  ],
+  "learned_drift": [
+    [
+      0.6032183170318604,
+      -1.177394151687622
+    ],
+    [
+      1.1224491596221924,
+      -0.08673477172851562
+    ]
+  ]
+}

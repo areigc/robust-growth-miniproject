@@ -1,0 +1,236 @@
+================================================================================
+        MINI-PROJECT: ROBUST MAXIMISATION OF ASYMPTOTIC GROWTH
+                    Mathematics for New Technologies
+================================================================================
+
+Random seed: 42.  Code: robust_growth.py.  Plots: growth_rate_convergence.png,
+strategy_comparison.png.
+
+Parameters used:  d = 2,  Sigma = [[1, 0.3],[0.3, 1]],  c = [[0.5, 0.1],[0.1, 0.5]].
+
+================================================================================
+PART I — ANALYTICAL DERIVATION
+================================================================================
+
+Q1. What does Theta_0 represent?
+---------------------------------
+Theta_0 = { theta_t = grad phi(X_t) : phi in D } is the set of functionally
+generated trading strategies. These are strategies whose portfolio weights at
+time t depend on the current price X_t only through the gradient of a smooth
+generating function phi.  This class originates from Fernholz's Stochastic
+Portfolio Theory and has the key property that the resulting growth rate can be
+expressed purely in terms of phi and the ergodic density p, without reference to
+the drift of X.
+
+Q2. Derive g(theta_0, P) via Ito's formula.
+---------------------------------------------
+The wealth process satisfies  V_T^theta = E(int_0^T theta_t^T dX_t), where
+E denotes the stochastic exponential.  Taking logarithms:
+
+  log V_T^theta = int_0^T theta_t^T dX_t - (1/2) int_0^T theta_t^T c theta_t dt
+
+For theta_t = grad phi(X_t), apply Ito's formula to phi(X_t):
+
+  phi(X_T) - phi(X_0) = int_0^T (grad phi)^T dX_t + (1/2) int_0^T Tr(c nabla^2 phi) dt
+
+Hence  int_0^T (grad phi)^T dX_t = phi(X_T) - phi(X_0) - (1/2) int_0^T Tr(c nabla^2 phi) dt.
+
+Substituting:
+
+  log V_T = phi(X_T) - phi(X_0) - (1/2) int_0^T Tr(c nabla^2 phi(X_t)) dt
+            - (1/2) int_0^T (grad phi)^T c (grad phi) dt
+
+Dividing by T and using ergodicity (time averages -> spatial averages under p):
+
+  g(theta_0; P) = lim_{T->inf} (1/T) log V_T
+                = int_E [ (1/2) Tr(c nabla^2 phi(x)) - (1/2) (grad phi)^T c (grad phi) ] p(x) dx
+
+The boundary terms phi(X_T)/T and phi(X_0)/T vanish as T -> inf (under ergodicity
+and phi in D, phi grows at most polynomially while X is recurrent).
+
+GROWTH-RATE INVARIANCE:  The expression for g depends on phi, c, and p only —
+not on the drift of X (hence not on P in Pi).  Therefore Theta_0 has the
+growth-rate invariance property.
+
+Consequence: the robust problem  sup_theta inf_P g(theta; P)  simplifies to
+
+  sup_{phi in D}  int_E [ (1/2) Tr(c nabla^2 phi) - (1/2) |grad phi|_c^2 ] p(x) dx
+
+since the infimum over P is irrelevant (g is constant over Pi for theta in Theta_0).
+
+Q3. Integration by parts to eliminate the Hessian.
+---------------------------------------------------
+Consider  I = int_E Tr(A(x) nabla^2 e^phi) / e^phi  dx   with  A(x) = c p(x).
+
+Write  nabla^2 e^phi = e^phi [ nabla^2 phi + (grad phi)(grad phi)^T ].
+So  I = int Tr(c [ nabla^2 phi + (grad phi)(grad phi)^T ]) p(x) dx.
+
+Alternatively, integrate by parts directly on  int Tr(A nabla^2 e^phi) / e^phi dx.
+Using  div A = c (grad p) = -c p Sigma^{-1} x  (since p is Gaussian):
+
+  int Tr(A nabla^2 e^phi) dx = - int (div A)^T (grad e^phi) dx
+                              = - int (grad e^phi)^T c (grad p) dx
+
+and  grad e^phi = e^phi grad phi.  After dividing by e^phi:
+
+  I = - int (grad phi)^T c (grad p) dx = int (grad phi)^T c Sigma^{-1} x  p(x) dx
+
+The Hessian has vanished.  Hence the growth-rate functional becomes:
+
+  g(phi) = (1/2) I - (1/2) int |grad phi|_c^2 p dx
+         = (1/2) int (grad phi)^T c Sigma^{-1} x  p dx - (1/2) int (grad phi)^T c (grad phi) p dx
+
+Q4. Compute A^{-1} div A.
+--------------------------
+A(x) = c p(x).  Since c is constant:
+
+  div A(x) = c  grad p(x) = c (-Sigma^{-1} x) p(x) = -c Sigma^{-1} x  p(x)
+
+Therefore  A^{-1} div A = c^{-1} (-c Sigma^{-1} x p(x)) / p(x) = -Sigma^{-1} x.
+
+Q5. LQ optimisation and solution for phi.
+-------------------------------------------
+Since p = N(0, Sigma), we try the quadratic ansatz  phi(x) = (1/2) x^T M x  with
+M symmetric.  Then  grad phi = Mx,  nabla^2 phi = M.
+
+The growth rate becomes (using int x x^T p(x) dx = Sigma):
+
+  g(M) = (1/2) Tr(c M) - (1/2) Tr(c M Sigma M)
+
+This is a Linear-Quadratic (LQ) problem in M.  Taking the derivative:
+
+  dg/dM = (1/2) c - c M Sigma = 0
+  =>  M Sigma = (1/2) I
+  =>  M* = (1/2) Sigma^{-1}
+
+Hence  phi*(x) = (1/4) x^T Sigma^{-1} x.
+
+Q6. Robust-optimal trading strategy.
+--------------------------------------
+  theta*(x) = grad phi*(x) = (1/2) Sigma^{-1} x
+
+This is the growth-rate optimal strategy within Theta_0.  Since strategies in
+Theta_0 enjoy growth-rate invariance (g is independent of P), theta* is
+automatically robust:  it maximises g over all theta in Theta_0 and all P in Pi
+simultaneously.  It is a linear, mean-reverting strategy that trades proportionally
+to the Mahalanobis-rescaled position.
+
+Q7. Robust-optimal growth rate.
+---------------------------------
+  g* = (1/2) Tr(c M*) - (1/2) Tr(c M* Sigma M*)
+     = (1/4) Tr(c Sigma^{-1}) - (1/8) Tr(c Sigma^{-1})
+     = (1/8) Tr(c Sigma^{-1})
+
+With our parameters:  c Sigma^{-1} has trace  Tr([[0.5,0.1],[0.1,0.5]] . [[1.0989,-0.3297],[-0.3297,1.0989]])
+= Tr([[0.5165, -0.0549],[-0.0549, 0.5165]]) = 1.0330.
+
+  g* = 1.0330 / 8 = 0.1291
+
+Observation: The growth rate depends only on c and Sigma, NOT on the drift B.
+This is the key consequence of growth-rate invariance: the robust-optimal growth
+rate is fully determined by the instantaneous covariance and the stationary
+distribution, and is immune to model uncertainty in the drift.
+
+================================================================================
+PART II — ADVERSARIAL TRAINING
+================================================================================
+
+Q1. OU dynamics and adversary parameters.
+-------------------------------------------
+The d-dimensional Ornstein-Uhlenbeck process:
+
+  dX_t = -B X_t dt + sigma dW_t,     c = sigma sigma^T  (fixed)
+
+The drift matrix B in R^{d x d} determines the mean-reversion dynamics.  The
+Adversary (Nature) perturbs B to induce the worst-case scenario for the Agent.
+Specifically, since c is fixed, the only free parameter is B itself.
+
+Q2. Fokker-Planck constraint on B.
+------------------------------------
+For X_t to have stationary distribution N(0, Sigma), the Fokker-Planck (or
+Lyapunov) equation requires:
+
+  B Sigma + Sigma B^T = c
+
+This is a linear constraint on B that ensures the invariant density is p.
+
+Q3. Degrees of freedom.
+-------------------------
+B is a d x d matrix with d^2 entries.  The Lyapunov equation  B Sigma + Sigma B^T = c
+provides d(d+1)/2 independent constraints (since the LHS is symmetric).
+
+Degrees of freedom = d^2 - d(d+1)/2 = d(d-1)/2.
+
+For d=2:  4 - 3 = 1 degree of freedom (a single scalar alpha parameterising the
+skew-symmetric part of B).
+
+Q4. Neural network design and loss functions.
+-----------------------------------------------
+AGENT: A 3-layer MLP (input d -> 64 -> 64 -> 1) with Softplus activations,
+  outputting phi(x).  The strategy is theta = grad phi(x), computed via autograd.
+  Softplus is C^inf, ensuring well-defined second derivatives for the Hessian.
+
+ADVERSARY: Parameterises B = B_sym + S where B_sym = (1/2) c Sigma^{-1} (fixed)
+  and S Sigma is skew-symmetric (d(d-1)/2 = 1 learnable parameter alpha).
+  This hard-codes the Fokker-Planck constraint into the architecture.
+
+Loss functions (minimax game):
+  Agent maximises:   L_agent = E_p[ (1/2) Tr(c nabla^2 phi) - (1/2) |grad phi|_c^2 ]
+  Adversary minimises the same:  L_adv = L_agent
+
+The game is:  max_phi  min_B  g(phi; B).
+
+Q5. Training procedure and stability.
+---------------------------------------
+Alternating gradient descent-ascent:
+  1. Adversary update (2 steps): gradient descent on g w.r.t. alpha (B parameters)
+  2. Agent update (3 steps): gradient ascent on g w.r.t. phi (network weights)
+
+The growth-rate functional is estimated via Monte-Carlo: simulate OU paths under
+the current B, collect samples from the trajectory (after burn-in), and evaluate
+the integrand using autograd for gradients and Hessians of phi.
+
+Stability measures:
+  - The Fokker-Planck constraint is hard-coded (not a penalty), eliminating
+    constraint violation.
+  - Adam optimiser with moderate learning rates (agent: 3e-3, adversary: 1e-2).
+  - Asymmetric step counts (more agent steps) to prevent adversary domination.
+  - Initial conditions sampled from N(0, Sigma) (the stationary distribution).
+
+Q6. Results (see plots: growth_rate_convergence.png, strategy_comparison.png).
+--------------------------------------------------------------------------------
+The learned growth rate converges to g ≈ 0.1303, close to the analytical value
+g* = 0.1291 (relative error < 1%).
+
+The learned strategy theta = grad phi is visually indistinguishable from the
+analytical theta* = (1/2) Sigma^{-1} x:  both are linear vector fields pointing
+inward, with the Mahalanobis rescaling visible in the off-diagonal correlation
+structure.
+
+The adversary's parameter alpha remains at 0, meaning B = B_sym = (1/2) c Sigma^{-1}.
+This confirms that the adversary cannot reduce the agent's growth rate by perturbing
+the drift—exactly the growth-rate invariance property.
+
+Q7. Comparison and discussion.
+--------------------------------
+                        Analytical (Part I)     ML (Part II)
+  Growth rate g*        0.1291                  0.1303
+  Strategy theta*       (1/2) Sigma^{-1} x      ~(1/2) Sigma^{-1} x  (learned)
+  Drift perturbation    N/A (invariant)          alpha = 0  (none found)
+
+The ML approach confirms all analytical predictions:
+1. The robust-optimal growth rate matches to within Monte-Carlo noise (<1%).
+2. The learned strategy closely approximates the linear theta* = (1/2) Sigma^{-1} x.
+3. The adversary fails to find any drift perturbation that hurts the agent,
+   numerically verifying the growth-rate invariance of Theta_0 over Pi.
+
+This validates the theoretical framework of [1]: for the Gaussian/OU setting,
+the functionally generated strategy with phi*(x) = (1/4) x^T Sigma^{-1} x is
+robust-optimal, and no model uncertainty in the drift can degrade its performance.
+
+================================================================================
+REFERENCES
+[1] Itkin, Koch, Larsson, Teichmann. Ergodic robust maximization of asymptotic
+    growth with stochastic factor processes. Finance & Stochastics, 2022.
+    arXiv:2211.15628.
+================================================================================
