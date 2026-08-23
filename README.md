@@ -1,8 +1,15 @@
 # Robust maximisation of asymptotic growth
 
+[![Tests](https://github.com/areigc/robust-growth-miniproject/actions/workflows/tests.yml/badge.svg)](https://github.com/areigc/robust-growth-miniproject/actions/workflows/tests.yml)
+![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue)
+
 This repository contains the analytical and numerical work for the *Mathematics for New Technologies in Finance* mini-project on robust portfolio growth under drift uncertainty.
 
 The project studies a minimax problem in which an investor chooses a functionally generated strategy while an adversary changes the drift of a multidimensional Ornstein-Uhlenbeck process without changing its stationary Gaussian distribution. The analytical solution is used as a benchmark for adversarial neural-network training.
+
+> [!IMPORTANT]
+> This is an educational research project, not investment advice. The model is
+> deliberately simplified and must not be used to make real trading decisions.
 
 ## Main result
 
@@ -42,6 +49,9 @@ strategy up to Monte Carlo and approximation error.
 .
 ├── README.md
 ├── requirements.txt
+├── .github/
+│   ├── dependabot.yml       # monthly dependency checks
+│   └── workflows/tests.yml  # automated test suite
 ├── docs/
 │   ├── assignment.pdf       # original three-page project brief
 │   ├── assignment.txt       # accessible plain-text version
@@ -131,3 +141,9 @@ The complete derivation, training discussion, and comparison are in the [report]
 ## Reference
 
 David Itkin, Benedikt Koch, Martin Larsson, and Josef Teichmann, “Ergodic robust maximization of asymptotic growth with stochastic factor processes,” *Finance and Stochastics* (2022), [arXiv:2211.15628](https://arxiv.org/abs/2211.15628).
+
+## Reuse and licensing
+
+No open-source license is currently granted. The repository is public for
+educational review and reproducibility. The included course assignment is
+source material and may be subject to separate rights.
